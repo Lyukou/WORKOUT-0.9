@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.json">
+<title>三分化训练</title>
+<style>
+:root{--bg:#0d0d0f;--card:#1c1c20;--card-hi:#26262c;--border:#2c2c30;--text:#f5f5f7;--sub:#8e8e93;--green:#30d158;--red:#ff453a;--blue:#0a84ff;--yellow:#ffd60a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:16px;overscroll-behavior:none;-webkit-font-smoothing:antialiased}
+body{padding-bottom:env(safe-area-inset-bottom);min-height:100vh}
+.page{display:none;min-height:100vh;padding:calc(16px + env(safe-area-inset-top)) 16px 120px}
+.page.active{display:block}
+.home-header{padding:8px 4px 20px}
+.home-header h1{font-size:28px;margin:0 0 6px;font-weight:700;letter-spacing:-.5px}
+.home-header .sub{margin:0;color:var(--sub);font-size:14px}
+.notice{background:#3a2e00;border:1px solid #5a4a00;color:var(--yellow);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;margin-bottom:16px;display:none}
+.notice.show{display:block}
+.install-banner{background:linear-gradient(135deg,#1e3a2a,#1c1c20);border:1px solid #2a4a35;border-radius:16px;padding:16px;margin-bottom:16px;display:none;align-items:center;justify-content:space-between;gap:12px}
+.install-banner.show{display:flex}
+.install-banner .txt{font-size:13px;color:var(--sub);line-height:1.5}
+.install-banner .txt strong{color:var(--text);display:block;font-size:14px;margin-bottom:2px}
+.install-banner button{background:var(--green);color:#000;border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit}
+.continue-card{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1e3a2a,#1c1c20);border:1px solid #2a4a35;border-radius:16px;padding:16px;margin-bottom:16px}
+.continue-card.hidden{display:none}
+.continue-label{font-size:12px;color:var(--green);font-weight:600;margin-bottom:4px}
+.continue-day{font-size:15px;font-weight:600}
+.continue-action{background:var(--green);color:#000;border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.day-list{display:flex;flex-direction:column;gap:12px}
+.day-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:transform .1s,background .1s}
+.day-card:active{transform:scale(.985);background:var(--card-hi)}
+.day-card .day-name{font-size:17px;font-weight:600;margin-bottom:6px}
+.day-card .day-meta{font-size:13px;color:var(--sub)}
+.day-card.day4{opacity:.85}
+.bottom-btns{display:flex;gap:10px;margin-top:24px}
+.bottom-btns button{flex:1;background:transparent;border:1px solid var(--border);color:var(--sub);padding:14px;border-radius:12px;font-size:14px;cursor:pointer;font-family:inherit}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 0 16px;position:sticky;top:0;background:var(--bg);z-index:10}
+.topbar-title{font-size:16px;font-weight:600;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 8px}
+.icon-btn{background:transparent;border:none;color:var(--text);font-size:24px;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.text-btn{background:transparent;border:none;font-size:15px;cursor:pointer;padding:8px 12px;border-radius:8px;font-weight:500;font-family:inherit}
+.text-btn.danger{color:var(--red)}
+.exercise-list{display:flex;flex-direction:column;gap:14px}
+.ex-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+.ex-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}
+.ex-name{font-size:17px;font-weight:600;line-height:1.3}
+.ex-meta{font-size:13px;color:var(--sub);white-space:nowrap;padding-top:2px}
+.ex-body{display:flex;flex-direction:column;gap:12px}
+.weight-row{display:flex;align-items:center;gap:8px}
+.weight-label{font-size:13px;color:var(--sub);min-width:32px}
+.step-btn{background:var(--card-hi);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:10px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:300;font-family:inherit}
+.step-btn:active{background:#333}
+.weight-input{flex:1;background:var(--card-hi);border:1px solid var(--border);color:var(--text);height:40px;border-radius:10px;text-align:center;font-size:16px;font-weight:600;width:0;min-width:60px;padding:0 8px;font-family:inherit}
+.weight-input:focus{outline:none;border-color:var(--blue)}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+.weight-unit{font-size:13px;color:var(--sub);min-width:20px}
+.set-dots{display:flex;gap:10px;flex-wrap:wrap}
+.dot{width:46px;height:46px;border-radius:50%;border:2px solid #3a3a3e;background:transparent;color:var(--sub);font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0;font-family:inherit}
+.dot.done{background:var(--green);border-color:var(--green);color:#000}
+.ex-note{font-size:12px;color:var(--sub);margin-top:12px;line-height:1.5}
+.timer-bar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));background:#1e1e24;border:1px solid #333;border-radius:18px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:100;transition:opacity .2s,transform .2s}
+.timer-bar.hidden{opacity:0;transform:translateY(20px);pointer-events:none}
+.timer-bar.done{background:#0d2e18;border-color:var(--green)}
+.timer-info{flex:1}
+.timer-label{font-size:12px;color:var(--sub);margin-bottom:2px}
+.timer-time{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.timer-bar.done .timer-time{font-size:20px;color:var(--green)}
+.timer-actions{display:flex;gap:8px}
+.timer-btn{background:var(--card-hi);border:1px solid var(--border);color:var(--text);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.timer-btn.primary{background:var(--green);color:#000;border-color:var(--green)}
+.history-list{display:flex;flex-direction:column;gap:12px}
+.hist-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer}
+.hist-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hist-date{font-size:14px;font-weight:600}
+.hist-day{font-size:13px;color:var(--sub);text-align:right}
+.hist-summary{font-size:13px;color:var(--sub);margin-top:8px}
+.hist-detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:13px;line-height:1.9;color:var(--sub)}
+.hist-item.expanded .hist-detail{display:block}
+.empty{text-align:center;color:var(--sub);padding:60px 20px;font-size:14px;line-height:1.8}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.show{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;max-width:440px;width:100%;max-height:80vh;overflow-y:auto}
+.modal-box h2{font-size:18px;margin:0 0 14px}
+.modal-box p,.modal-box li{font-size:14px;color:var(--sub);line-height:1.8;margin:0 0 10px}
+.modal-box ol,.modal-box ul{padding-left:20px;margin:0 0 14px}
+.modal-box code{background:var(--card-hi);padding:2px 6px;border-radius:6px;font-size:13px;color:var(--text)}
+.modal-box .close-btn{width:100%;background:var(--green);color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:inherit}
+</style>
+</head>
+<body>
+
+<div id="homePage" class="page active">
+  <div class="home-header">
+    <h1>三分化训练</h1>
+    <p class="sub">背 / 胸 / 腿 · 大肌群约9组 · RIR 留余力</p>
+  </div>
+  <div id="fileNotice" class="notice">
+    <strong>本地文件模式</strong><br>
+    训练记录功能正常，但无法安装为独立 App。要安装，请把 3 个文件上传到 HTTPS 托管（见下方“安装说明”）。
+  </div>
+  <div id="installBanner" class="install-banner">
+    <div class="txt"><strong>安装到桌面</strong>全屏运行，无地址栏</div>
+    <button id="installBtn">安装</button>
+  </div>
+  <div id="continueBtn" class="continue-card hidden">
+    <div>
+      <div class="continue-label">继续上次训练</div>
+      <div class="continue-day"></div>
+    </div>
+    <button class="continue-action" onclick="resumeWorkout()">继续</button>
+  </div>
+  <div class="day-list" id="dayList"></div>
+  <div class="bottom-btns">
+    <button onclick="showPage('history')">历史记录</button>
+    <button onclick="openHelp()">安装说明</button>
+  </div>
+</div>
+
+<div id="workoutPage" class="page">
+  <header class="topbar">
+    <button class="icon-btn" onclick="showPage('home')">←</button>
+    <div class="topbar-title" id="workoutTitle">训练</div>
+    <button class="text-btn danger" onclick="finishWorkout(false)">结束</button>
+  </header>
+  <div id="exerciseList" class="exercise-list"></div>
+</div>
+
+<div id="historyPage" class="page">
+  <header class="topbar">
+    <button class="icon-btn" onclick="showPage('home')">←</button>
+    <div class="topbar-title">历史记录</div>
+    <div style="width:40px"></div>
+  </header>
+  <div id="historyList" class="history-list"></div>
+</div>
+
+<div class="timer-bar hidden" id="timerBar">
+  <div class="timer-info">
+    <div class="timer-label" id="timerLabel">休息中</div>
+    <div class="timer-time" id="timerTime">00:00</div>
+  </div>
+  <div class="timer-actions">
+    <button class="timer-btn" id="btnPause">暂停</button>
+    <button class="timer-btn primary" id="btnSkip">跳过</button>
+  </div>
+</div>
+
+<div class="modal" id="helpModal">
+  <div class="modal-box">
+    <h2>如何安装到 Pixel 桌面</h2>
+    <p><strong>前提：</strong>页面必须通过 HTTPS 链接打开（本地 <code>file://</code> 文件不行）。</p>
+    <ol>
+      <li>把这 3 个文件（<code>index.html</code>、<code>manifest.json</code>、<code>sw.js</code>）上传到任意 HTTPS 托管。</li>
+      <li>用 Pixel 的 Chrome 打开得到的 HTTPS 链接。</li>
+      <li>点右上角 <strong>⋮</strong> → <strong>安装应用</strong>（或地址栏右侧出现的小手机图标，直接点）。</li>
+      <li>如果菜单里只有“添加到主屏幕”，也可以，效果是快捷方式。</li>
+    </ol>
+    <p><strong>推荐托管（免费）：</strong></p>
+    <ul>
+      <li><strong>GitHub Pages</strong>：新建仓库 → 上传 3 个文件 → Settings → Pages → 分支选 main → 保存，几分钟后得到 <code>https://用户名.github.io/仓库名/</code></li>
+      <li><strong>Netlify</strong>：注册后把整个文件夹拖进 app.netlify.com/drop，立刻得到 HTTPS 链接。</li>
+    </ul>
+    <p>安装后桌面会出现绿色杠铃图标，点开全屏运行，数据存在手机本地，不联网也能练。</p>
+    <button class="close-btn" onclick="closeHelp()">知道了</button>
+  </div>
+</div>
+
+<script>
+const PLAN = {
+  day1: { id:'day1', title:'Day1', subtitle:'背 + 肩后束 + 二头', exercises:[
+    {id:'d1e1',name:'高位下拉',sets:3,reps:'8–10',rest:180,note:'背阔肌主项，肩胛先下沉'},
+    {id:'d1e2',name:'坐姿划船',sets:3,reps:'8–10',rest:180,note:'挺胸，不耸肩'},
+    {id:'d1e3',name:'杠铃划船 / 哑铃划船',sets:3,reps:'8–10',rest:180,note:'腰不适优先坐姿划船或哑铃单臂'},
+    {id:'d1e4',name:'俯身侧平举',sets:3,reps:'12–15',rest:75,note:'肩后束'},
+    {id:'d1e5',name:'反向飞鸟 / 面拉',sets:3,reps:'12–15',rest:75,note:'无此器械则再做俯身侧平举'},
+    {id:'d1e6',name:'杠铃弯举',sets:3,reps:'8–10',rest:90,note:'二头弱项，动作标准优先'},
+    {id:'d1e7',name:'哑铃弯举',sets:3,reps:'10–12',rest:75,note:'不甩身'}
+  ]},
+  day2: { id:'day2', title:'Day2', subtitle:'胸 + 肩前中束 + 三头', exercises:[
+    {id:'d2e1',name:'平板卧推',sets:3,reps:'6–8',rest:150,note:'杠铃/哑铃/史密斯，单人优先史密斯或有保护'},
+    {id:'d2e2',name:'上斜卧推',sets:3,reps:'8–10',rest:150,note:'30°左右'},
+    {id:'d2e3',name:'坐姿推胸 / 史密斯卧推',sets:3,reps:'10–12',rest:120,note:'器械更安全'},
+    {id:'d2e4',name:'坐姿哑铃肩推 / 杠铃推举',sets:3,reps:'6–10',rest:120,note:'肩前中束'},
+    {id:'d2e5',name:'侧平举',sets:3,reps:'12–15',rest:75,note:'小重量，控制下放'},
+    {id:'d2e6',name:'窄距卧推 / 双杠臂屈伸辅助',sets:3,reps:'8–10',rest:105,note:'三头'},
+    {id:'d2e7',name:'绳索下压 / 哑铃颈后臂屈伸',sets:3,reps:'10–12',rest:75,note:'三头'}
+  ]},
+  day3: { id:'day3', title:'Day3', subtitle:'腿 + 腹', exercises:[
+    {id:'d3e1',name:'坐姿腿举 / 哈克深蹲',sets:4,reps:'8–10',rest:180,note:'体重大，先用器械主项'},
+    {id:'d3e2',name:'哈克深蹲 / 反向深蹲 / 自由深蹲',sets:4,reps:'8–10',rest:180,note:'自由深蹲用安全架，重量保守'},
+    {id:'d3e3',name:'罗马尼亚硬拉',sets:4,reps:'8–10',rest:150,note:'腘绳肌，腰背中立'},
+    {id:'d3e4',name:'悬垂举腿',sets:3,reps:'10–15',rest:75,note:'下腹'},
+    {id:'d3e5',name:'卷腹 / 屈膝仰卧起坐',sets:3,reps:'15–20',rest:60,note:'腹'},
+    {id:'d3e6',name:'山羊挺身',sets:2,reps:'12–15',rest:60,note:'下背，轻重量'}
+  ]},
+  day4: { id:'day4', title:'Day4', subtitle:'二头弱项日（第5周起）', exercises:[
+    {id:'d4e1',name:'锤式弯举',sets:3,reps:'10–12',rest:75,note:''},
+    {id:'d4e2',name:'集中弯举 / 牧师椅弯举',sets:3,reps:'12–15',rest:60,note:''},
+    {id:'d4e3',name:'反向飞鸟 / 面拉',sets:3,reps:'15',rest:60,note:''},
+    {id:'d4e4',name:'悬垂举腿或卷腹',sets:3,reps:'12–20',rest:60,note:''},
+    {id:'d4e5',name:'低强度有氧',sets:1,reps:'20–30min',rest:0,note:'快走/椭圆/单车'}
+  ]}
+};
+
+let state = {
+  currentDay:null, weights:{}, completed:{}, startedAt:null,
+  timer:{running:false,paused:false,total:0,remaining:0,endAt:0,intervalId:null}
+};
+
+let audioCtx = null;
+function initAudio(){
+  if(!audioCtx){ try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+}
+document.addEventListener('click', initAudio);
+document.addEventListener('touchstart', initAudio, {passive:true});
+
+function beep(){
+  if(!audioCtx) return;
+  const now = audioCtx.currentTime;
+  [0,0.22,0.44].forEach(offset=>{
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.value = 880; osc.type = 'sine';
+    gain.gain.setValueAtTime(0.001, now+offset);
+    gain.gain.exponentialRampToValueAtTime(0.4, now+offset+0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, now+offset+0.18);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(now+offset); osc.stop(now+offset+0.2);
+  });
+}
+
+function loadActive(){ try{ return JSON.parse(localStorage.getItem('tt_active')); }catch(e){ return null; } }
+function saveActive(){
+  if(!state.currentDay) return;
+  localStorage.setItem('tt_active', JSON.stringify({
+    currentDay:state.currentDay, weights:state.weights,
+    completed:state.completed, startedAt:state.startedAt
+  }));
+}
+let saveTimer=null;
+function debounceSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveActive,300); }
+function getLastWeight(exid){
+  try{ return (JSON.parse(localStorage.getItem('tt_lastWeight'))||{})[exid]||''; }catch(e){ return ''; }
+}
+function fmtRest(sec){ const m=Math.floor(sec/60),s=sec%60; return m+':'+String(s).padStart(2,'0'); }
+function fmtTimer(sec){ const m=Math.floor(sec/60),s=sec%60; return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+function findExercise(exid){
+  for(const day of Object.values(PLAN)){
+    const ex = day.exercises.find(e=>e.id===exid);
+    if(ex) return ex;
+  }
+  return null;
+}
+
+function initHome(){
+  const dayList = document.getElementById('dayList');
+  dayList.innerHTML = Object.values(PLAN).map(day=>{
+    const totalSets = day.exercises.reduce((s,e)=>s+e.sets,0);
+    return '<div class="day-card '+(day.id==='day4'?'day4':'')+'" data-day="'+day.id+'">'+
+      '<div class="day-name">'+day.title+' · '+day.subtitle+'</div>'+
+      '<div class="day-meta">'+day.exercises.length+' 个动作 · '+totalSets+' 组</div>'+
+    '</div>';
+  }).join('');
+  dayList.onclick = e=>{
+    const card = e.target.closest('.day-card');
+    if(card) startWorkout(card.dataset.day);
+  };
+}
+
+function updateHome(){
+  const active = loadActive();
+  const btn = document.getElementById('continueBtn');
+  if(active && active.currentDay){
+    const hasProgress = Object.values(active.completed||{}).some(a=>a.length>0);
+    if(hasProgress){
+      btn.classList.remove('hidden');
+      const day = PLAN[active.currentDay];
+      btn.querySelector('.continue-day').textContent = day.title+' · '+day.subtitle;
+      return;
+    }
+  }
+  btn.classList.add('hidden');
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const page = document.getElementById(name+'Page');
+  if(page) page.classList.add('active');
+  if(name==='home') updateHome();
+  if(name==='history') renderHistory();
+  window.scrollTo(0,0);
+}
+
+function startWorkout(dayId){
+  const active = loadActive();
+  if(active && active.currentDay && active.currentDay!==dayId){
+    const hasProgress = Object.values(active.completed||{}).some(a=>a.length>0);
+    if(hasProgress && !confirm('有未完成的训练，开始新的训练会丢弃它，继续？')) return;
+  }
+  if(active && active.currentDay===dayId){
+    state.weights = active.weights||{};
+    state.completed = active.completed||{};
+    state.startedAt = active.startedAt||Date.now();
+  }else{
+    state.weights = {}; state.completed = {}; state.startedAt = Date.now();
+  }
+  state.currentDay = dayId;
+  PLAN[dayId].exercises.forEach(ex=>{
+    if(state.weights[ex.id]===undefined){
+      const lw = getLastWeight(ex.id);
+      if(lw!=='') state.weights[ex.id] = Number(lw);
+    }
+  });
+  saveActive(); renderWorkout(); showPage('workout'); stopTimer();
+}
+
+function resumeWorkout(){
+  const active = loadActive();
+  if(active && active.currentDay) startWorkout(active.currentDay);
+}
+
+function renderWorkout(){
+  const day = PLAN[state.currentDay];
+  document.getElementById('workoutTitle').textContent = day.title+' · '+day.subtitle;
+  const list = document.getElementById('exerciseList');
+  list.innerHTML = day.exercises.map(ex=>{
+    const w = state.weights[ex.id]!==undefined ? state.weights[ex.id] : '';
+    const done = state.completed[ex.id]||[];
+    const dots = Array.from({length:ex.sets},(_,i)=>
+      '<button class="dot '+(done.includes(i)?'done':'')+'" data-exid="'+ex.id+'" data-set="'+i+'">'+(i+1)+'</button>'
+    ).join('');
+    const restText = ex.rest>0 ? fmtRest(ex.rest) : '—';
+    return '<div class="ex-card" data-exid="'+ex.id+'">'+
+      '<div class="ex-head">'+
+        '<div class="ex-name">'+ex.name+'</div>'+
+        '<div class="ex-meta">'+ex.sets+'×'+ex.reps+' · 休'+restText+'</div>'+
+      '</div>'+
+      '<div class="ex-body">'+
+        '<div class="weight-row">'+
+          '<span class="weight-label">重量</span>'+
+          '<button class="step-btn" data-exid="'+ex.id+'" data-step="-2.5">−</button>'+
+          '<input type="number" inputmode="decimal" class="weight-input" data-exid="'+ex.id+'" value="'+w+'" placeholder="kg">'+
+          '<button class="step-btn" data-exid="'+ex.id+'" data-step="2.5">+</button>'+
+          '<span class="weight-unit">kg</span>'+
+        '</div>'+
+        '<div class="set-dots">'+dots+'</div>'+
+      '</div>'+
+      (ex.note?'<div class="ex-note">'+ex.note+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+document.getElementById('exerciseList').addEventListener('click', e=>{
+  const dot = e.target.closest('.dot');
+  if(dot){ toggleSet(dot.dataset.exid, parseInt(dot.dataset.set)); return; }
+  const stepBtn = e.target.closest('.step-btn');
+  if(stepBtn){ adjustWeight(stepBtn.dataset.exid, parseFloat(stepBtn.dataset.step)); return; }
+});
+
+document.getElementById('exerciseList').addEventListener('input', e=>{
+  if(e.target.classList.contains('weight-input')){
+    const exid = e.target.dataset.exid;
+    const val = parseFloat(e.target.value);
+    state.weights[exid] = isNaN(val) ? '' : val;
+    debounceSave();
+  }
+});
+
+function toggleSet(exid, setIndex){
+  if(!state.completed[exid]) state.completed[exid] = [];
+  const arr = state.completed[exid];
+  const idx = arr.indexOf(setIndex);
+  const wasCompleted = idx>=0;
+  if(wasCompleted) arr.splice(idx,1);
+  else arr.push(setIndex);
+  saveActive();
+  const card = document.querySelector('.ex-card[data-exid="'+exid+'"]');
+  if(card){
+    card.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('done', arr.includes(i)));
+  }
+  if(!wasCompleted){
+    const ex = findExercise(exid);
+    const allDone = arr.length >= ex.sets;
+    if(!allDone && ex.rest>0) startTimer(ex.rest);
+    if(allDone){
+      setTimeout(()=>scrollToNext(exid),500);
+      checkAllDone();
+    }
+  }
+}
+
+function scrollToNext(exid){
+  const card = document.querySelector('.ex-card[data-exid="'+exid+'"]');
+  if(card && card.nextElementSibling) card.nextElementSibling.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function adjustWeight(exid, delta){
+  const input = document.querySelector('.weight-input[data-exid="'+exid+'"]');
+  if(!input) return;
+  let cur = parseFloat(input.value)||0;
+  cur = Math.max(0, cur+delta);
+  input.value = cur;
+  state.weights[exid] = cur;
+  debounceSave();
+}
+
+function checkAllDone(){
+  const day = PLAN[state.currentDay];
+  if(!day) return;
+  const allDone = day.exercises.every(ex=>(state.completed[ex.id]||[]).length >= ex.sets);
+  if(allDone){
+    setTimeout(()=>{
+      if(confirm('所有动作已完成！保存本次训练？')) finishWorkout(true);
+    },400);
+  }
+}
+
+function finishWorkout(skipConfirm){
+  if(!skipConfirm){
+    const totalDone = Object.values(state.completed).reduce((s,a)=>s+a.length,0);
+    if(totalDone>0){
+      if(!confirm('结束本次训练并保存记录？')) return;
+    }else{
+      if(!confirm('还没有完成任何组，确定结束？')) return;
+    }
+  }
+  let hist = [];
+  try{ hist = JSON.parse(localStorage.getItem('tt_history'))||[]; }catch(e){}
+  hist.push({
+    id:Date.now(), dayId:state.currentDay,
+    date:new Date().toISOString().slice(0,10),
+    startedAt:state.startedAt, finishedAt:Date.now(),
+    weights:state.weights, completed:state.completed
+  });
+  localStorage.setItem('tt_history', JSON.stringify(hist));
+  let lw = {};
+  try{ lw = JSON.parse(localStorage.getItem('tt_lastWeight'))||{}; }catch(e){}
+  Object.assign(lw, state.weights);
+  localStorage.setItem('tt_lastWeight', JSON.stringify(lw));
+  localStorage.removeItem('tt_active');
+  state.currentDay = null; state.weights = {}; state.completed = {};
+  stopTimer(); showPage('home');
+}
+
+const timerBar = document.getElementById('timerBar');
+const timerTime = document.getElementById('timerTime');
+const timerLabel = document.getElementById('timerLabel');
+const btnPause = document.getElementById('btnPause');
+const btnSkip = document.getElementById('btnSkip');
+
+function startTimer(seconds){
+  stopTimer();
+  const t = state.timer;
+  t.running = true; t.paused = false;
+  t.total = seconds; t.remaining = seconds;
+  t.endAt = Date.now()+seconds*1000;
+  timerBar.classList.remove('hidden','done');
+  timerLabel.textContent = '休息中';
+  timerTime.textContent = fmtTimer(seconds);
+  btnPause.textContent = '暂停';
+  t.intervalId = setInterval(tickTimer,200);
+}
+
+function stopTimer(){
+  const t = state.timer;
+  if(t.intervalId) clearInterval(t.intervalId);
+  t.running = false; t.paused = false; t.intervalId = null;
+  timerBar.classList.add('hidden');
+}
+
+function tickTimer(){
+  const t = state.timer;
+  if(!t.running||t.paused) return;
+  const remaining = Math.max(0, Math.round((t.endAt-Date.now())/1000));
+  t.remaining = remaining;
+  timerTime.textContent = fmtTimer(remaining);
+  if(remaining<=0){
+    if(t.intervalId) clearInterval(t.intervalId);
+    t.running = false;
+    onTimerDone();
+  }
+}
+
+function onTimerDone(){
+  beep();
+  if(navigator.vibrate) navigator.vibrate([200,100,200]);
+  timerBar.classList.add('done');
+  timerLabel.textContent = '休息结束';
+  timerTime.textContent = '下一组';
+  setTimeout(()=>{ timerBar.classList.remove('done'); timerBar.classList.add('hidden'); },2500);
+}
+
+btnPause.addEventListener('click',()=>{
+  const t = state.timer;
+  if(!t.running&&!t.paused) return;
+  if(t.paused){
+    t.paused = false;
+    t.endAt = Date.now()+t.remaining*1000;
+    t.intervalId = setInterval(tickTimer,200);
+    btnPause.textContent = '暂停';
+  }else{
+    t.paused = true;
+    if(t.intervalId) clearInterval(t.intervalId);
+    btnPause.textContent = '继续';
+  }
+});
+
+btnSkip.addEventListener('click',()=>{
+  stopTimer(); timerBar.classList.remove('done');
+});
+
+function renderHistory(){
+  const list = document.getElementById('historyList');
+  let hist = [];
+  try{ hist = JSON.parse(localStorage.getItem('tt_history'))||[]; }catch(e){}
+  hist.sort((a,b)=>b.finishedAt-a.finishedAt);
+  if(hist.length===0){
+    list.innerHTML = '<div class="empty">还没有训练记录<br>完成一次训练后会出现在这里</div>';
+    return;
+  }
+  list.innerHTML = hist.map(h=>{
+    const day = PLAN[h.dayId];
+    const totalSets = Object.values(h.completed||{}).reduce((s,a)=>s+a.length,0);
+    const totalPlanned = day.exercises.reduce((s,e)=>s+e.sets,0);
+    const details = day.exercises.map(ex=>{
+      const done = h.completed[ex.id]||[];
+      if(done.length===0) return '';
+      const w = h.weights[ex.id];
+      return '<div>'+ex.name+'：'+done.length+'/'+ex.sets+'组'+(w?' · '+w+'kg':'')+'</div>';
+    }).filter(Boolean).join('');
+    return '<div class="hist-item" onclick="this.classList.toggle(\'expanded\')">'+
+      '<div class="hist-head">'+
+        '<div class="hist-date">'+h.date+'</div>'+
+        '<div class="hist-day">'+day.title+' · '+day.subtitle+'</div>'+
+      '</div>'+
+      '<div class="hist-summary">完成 '+totalSets+'/'+totalPlanned+' 组</div>'+
+      '<div class="hist-detail">'+(details||'无记录')+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function openHelp(){ document.getElementById('helpModal').classList.add('show'); }
+function closeHelp(){ document.getElementById('helpModal').classList.remove('show'); }
+
+// ---------- PWA 安装逻辑 ----------
+let deferredPrompt = null;
+const installBanner = document.getElementById('installBanner');
+const installBtn = document.getElementById('installBtn');
+
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+const isLocalFile = location.protocol === 'file:';
+
+if(isLocalFile){
+  document.getElementById('fileNotice').classList.add('show');
+}
+
+if('serviceWorker' in navigator && !isLocalFile){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => {
+      console.log('SW 注册失败:', err.message);
+    });
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if(!isStandalone) installBanner.classList.add('show');
+});
+
+installBtn.addEventListener('click', async () => {
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if(outcome === 'accepted') installBanner.classList.remove('show');
+  deferredPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  installBanner.classList.remove('show');
+});
+
+document.getElementById('helpModal').addEventListener('click', e=>{
+  if(e.target.id === 'helpModal') closeHelp();
+});
+
+initHome();
+updateHome();
+</script>
+</body>
+</html>

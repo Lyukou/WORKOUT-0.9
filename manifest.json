@@ -1,0 +1,26 @@
+{
+  "name": "三分化训练",
+  "short_name": "三分化",
+  "description": "背/胸/腿三分化训练记录 · 组间歇计时",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0d0f",
+  "theme_color": "#0d0d0f",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20rx='110'%20fill='%230d0d0f'/%3E%3Cg%20fill='%2330d158'%3E%3Crect%20x='96'%20y='238'%20width='320'%20height='36'%20rx='18'/%3E%3Crect%20x='118'%20y='178'%20width='58'%20height='156'%20rx='18'/%3E%3Crect%20x='336'%20y='178'%20width='58'%20height='156'%20rx='18'/%3E%3Crect%20x='76'%20y='214'%20width='36'%20height='84'%20rx='14'/%3E%3Crect%20x='400'%20y='214'%20width='36'%20height='84'%20rx='14'/%3E%3C/g%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%230d0d0f'/%3E%3Cg%20fill='%2330d158'%3E%3Crect%20x='116'%20y='238'%20width='280'%20height='36'%20rx='18'/%3E%3Crect%20x='138'%20y='188'%20width='54'%20height='136'%20rx='16'/%3E%3Crect%20x='320'%20y='188'%20width='54'%20height='136'%20rx='16'/%3E%3C/g%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
