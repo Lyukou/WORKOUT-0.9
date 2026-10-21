@@ -110,7 +110,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 <div id="homePage" class="page active">
   <h1>三分化训练 Pro</h1>
   <p class="sub">背 / 胸 / 腿 · 三练保底 · 五练弹性</p>
-  <div class="tip">保底完成 Day1–Day3。恢复好可加 <b>Day4 二头弱项</b> 或 <b>Day5 轻量补量</b>；Day5 不碰大肌群，加在哪天都不影响恢复。</div>
+  <div class="tip">保底完成 Day1–Day3。恢复好可加 <b>Day4 二头弱项</b> 或 <b>Day5 轻量补量</b>；Day5 不碰大肌群和二头，加在哪天都不影响恢复。</div>
   <div id="continueCard" class="continue">
     <div><b>继续上次训练</b><span id="continueName"></span></div>
     <button class="btn" onclick="resumeWorkout()">继续</button>
@@ -157,7 +157,7 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
     <div class="top-title">1RM 设置</div>
     <div style="width:40px"></div>
   </div>
-  <div class="tip">初始 1RM 来自 2023-06-28 的 RM 数据。每次正式组完成后，App 会用 e1RM 自动覆盖；你也可以手动修改并锁定，或恢复自动。</div>
+  <div class="tip">初始 1RM 来自你表格里的数据（优先 2023-06-28，缺失的用 2022 记录估算）。每次正式组完成后 App 用 e1RM 自动覆盖；也可手动修改并锁定。</div>
   <div id="settingsList"></div>
 </div>
 
@@ -172,63 +172,51 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 <script>
 const PLAN={
 day1:{title:'Day1',sub:'背 + 肩后束 + 二头',optional:false,ex:[
-{id:'d1a',name:'面拉（前置）',sets:2,reps:'15',rest:45,target:'轻 8–10kg',note:'肩后束/肩袖激活，不做到力竭',main:false},
-{id:'d1b',name:'肩胛下沉/悬垂肩胛（前置）',sets:2,reps:'8',rest:45,target:'自重',note:'背阔肌先启动',main:false},
-{id:'d1c',name:'直臂下压（前置）',sets:2,reps:'12',rest:45,target:'10–15kg',note:'背阔肌激活',main:false},
-{id:'d1e1',name:'高位下拉',sets:3,reps:'8–10',rest:180,target:'目标45–50kg / 首周40–45kg',note:'肩胛先下沉',main:true,rm1:60},
-{id:'d1e2',name:'坐姿划船',sets:3,reps:'8–10',rest:180,target:'目标37.5–42.5kg / 首周35–40kg',note:'挺胸不耸肩',main:true,rm1:50},
-{id:'d1e3',name:'杠铃划船/哑铃划船',sets:3,reps:'8–10',rest:180,target:'杠铃45–50 / 哑铃每手15–17.5kg',note:'腰不适优先坐姿或哑铃单臂；首周减5–10%',main:true,rm1:55},
-{id:'d1e4',name:'俯身侧平举',sets:3,reps:'12–15',rest:75,target:'2.5–5kg',note:'肩后束',main:true,rm1:null},
-{id:'d1e5',name:'反向飞鸟/面拉',sets:3,reps:'12–15',rest:75,target:'10–15kg / 首周8–10kg',note:'无器械则再做俯身侧平举',main:true,rm1:null},
-{id:'d1e6',name:'杠铃弯举',sets:3,reps:'8–10',rest:90,target:'9–10kg / 首周8–9kg',note:'二头弱项，标准优先',main:true,rm1:12},
-{id:'d1e7',name:'哑铃弯举',sets:3,reps:'10–12',rest:75,target:'每手8–10kg / 首周7.5–8kg',note:'不甩身',main:true,rm1:12}
+{id:'d1a',name:'直臂下拉（前置）',sets:2,reps:'12',rest:45,target:'轻 10–15kg',note:'背阔肌激活，不做到力竭',main:false},
+{id:'d1e1',name:'高位下拉',sets:3,reps:'8–10',rest:180,target:'肩胛先下沉',note:'背阔肌主项',main:true,rm1:60},
+{id:'d1e2',name:'坐姿划船',sets:3,reps:'8–10',rest:180,target:'挺胸不耸肩',note:'背阔肌',main:true,rm1:50},
+{id:'d1e3',name:'俯身杠铃划船',sets:3,reps:'8–10',rest:180,target:'腰不适优先坐姿或哑铃单臂',note:'背阔肌',main:true,rm1:50},
+{id:'d1e4',name:'俯身哑铃侧平举',sets:3,reps:'12–15',rest:75,target:'轻 2.5–5kg/手',note:'肩后束',main:true,rm1:5},
+{id:'d1e5',name:'杠铃弯举',sets:3,reps:'8–10',rest:90,target:'二头弱项，标准优先',note:'',main:true,rm1:12},
+{id:'d1e6',name:'哑铃弯举',sets:3,reps:'10–12',rest:75,target:'不甩身',note:'',main:true,rm1:12}
 ]},
 day2:{title:'Day2',sub:'胸 + 肩前中束 + 三头 + 核心',optional:false,ex:[
 {id:'d2a',name:'交替摸肩（前置）',sets:2,reps:'20（每侧10）',rest:45,target:'自重',note:'核心抗旋转/肩胛稳定，慢',main:false},
-{id:'d2b',name:'肩袖外旋（前置）',sets:2,reps:'15',rest:45,target:'2.5–5kg',note:'肘贴身',main:false},
-{id:'d2c',name:'弹力带面拉/肩胛前伸（前置）',sets:2,reps:'12',rest:45,target:'轻',note:'肩胛控制',main:false},
-{id:'d2e1',name:'平板卧推',sets:3,reps:'6–8',rest:150,target:'目标45–50kg / 首周40–45kg',note:'单人优先史密斯/保护架',main:true,rm1:60},
-{id:'d2e2',name:'上斜卧推',sets:3,reps:'8–10',rest:150,target:'史密斯50–55 / 哑铃每手15–17.5kg',note:'30°左右；首周减5–10%',main:true,rm1:70},
-{id:'d2e3',name:'坐姿推胸/史密斯卧推',sets:3,reps:'10–12',rest:120,target:'15–17.5kg / 首周12.5–15kg',note:'器械更安全',main:true,rm1:20},
-{id:'d2e4',name:'坐姿哑铃肩推/杠铃推举',sets:3,reps:'6–10',rest:120,target:'哑铃每手12.5–15kg / 首周10–12.5kg',note:'肩前中束',main:true,rm1:20},
-{id:'d2e5',name:'侧平举',sets:3,reps:'12–15',rest:75,target:'2.5–5kg',note:'小重量控制下放',main:true,rm1:null},
-{id:'d2e6',name:'窄距卧推/双杠臂屈伸辅助',sets:3,reps:'8–10',rest:105,target:'窄距30–35kg / 首周25–30kg',note:'三头',main:true,rm1:40},
-{id:'d2e7',name:'绳索下压/颈后臂屈伸',sets:3,reps:'10–12',rest:75,target:'10–12kg / 首周8–10kg',note:'三头',main:true,rm1:15}
+{id:'d2e1',name:'平板杠铃卧推',sets:3,reps:'6–8',rest:150,target:'单人优先史密斯/保护架',note:'胸',main:true,rm1:60},
+{id:'d2e2',name:'上斜杠铃卧推',sets:3,reps:'8–10',rest:150,target:'30°左右',note:'胸',main:true,rm1:40},
+{id:'d2e3',name:'坐姿器械胸推',sets:3,reps:'10–12',rest:120,target:'器械更安全',note:'胸',main:true,rm1:20},
+{id:'d2e4',name:'坐姿哑铃肩推',sets:3,reps:'6–10',rest:120,target:'肩前中束',note:'',main:true,rm1:20},
+{id:'d2e5',name:'侧平举',sets:3,reps:'12–15',rest:75,target:'小重量控制下放',note:'肩中束',main:true,rm1:5},
+{id:'d2e6',name:'双杠臂屈伸',sets:3,reps:'8–10',rest:105,target:'三头',note:'1RM 数据可能不准，可在设置里校准',main:true,rm1:null},
+{id:'d2e7',name:'三头绳索下压',sets:3,reps:'10–12',rest:75,target:'三头',note:'',main:true,rm1:15}
 ]},
-day3:{title:'Day3',sub:'腿 + 腹 + 小腿 + 臀中肌',optional:false,ex:[
+day3:{title:'Day3',sub:'腿 + 腹 + 小腿 + 臀',optional:false,ex:[
 {id:'d3a',name:'靠墙静蹲（前置）',sets:2,reps:'30–45s',rest:45,target:'自重',note:'膝不适减小角度',main:false},
-{id:'d3b',name:'臀桥（前置）',sets:2,reps:'15',rest:45,target:'自重',note:'臀大肌激活',main:false},
-{id:'d3c',name:'蚌式/髋外展（前置）',sets:2,reps:'15',rest:45,target:'弹力带/轻',note:'臀中肌',main:false},
-{id:'d3d',name:'提踵激活（前置）',sets:2,reps:'15',rest:45,target:'轻',note:'小腿激活',main:false},
-{id:'d3e1',name:'坐姿腿举/哈克深蹲',sets:4,reps:'8–10',rest:180,target:'腿举80–90kg / 首周70–80kg',note:'体重大，先用器械主项',main:true,rm1:120},
-{id:'d3e2',name:'哈克/反向/自由深蹲',sets:4,reps:'8–10',rest:180,target:'自由深蹲45–50 / 首周40–45kg',note:'自由深蹲用安全架',main:true,rm1:60},
-{id:'d3e3',name:'罗马尼亚硬拉',sets:4,reps:'8–10',rest:150,target:'45–50kg / 首周40–45kg',note:'腰背中立',main:true,rm1:60},
+{id:'d3b',name:'臀举（前置）',sets:2,reps:'15',rest:45,target:'轻',note:'臀大肌激活',main:false,rm1:40},
+{id:'d3e1',name:'腿举',sets:4,reps:'8–10',rest:180,target:'体重大，先用器械主项',note:'股四',main:true,rm1:100},
+{id:'d3e2',name:'颈后自由深蹲',sets:4,reps:'8–10',rest:180,target:'用安全架，重量保守',note:'股四',main:true,rm1:40},
+{id:'d3e3',name:'罗马尼亚硬拉',sets:4,reps:'8–10',rest:150,target:'腰背中立',note:'腘绳肌',main:true,rm1:60},
 {id:'d3e4',name:'悬垂举腿',sets:3,reps:'10–15',rest:75,target:'自重',note:'下腹',main:true,rm1:null},
-{id:'d3e5',name:'卷腹/屈膝仰卧起坐',sets:3,reps:'15–20',rest:60,target:'自重',note:'腹',main:true,rm1:null},
-{id:'d3e6',name:'山羊挺身',sets:2,reps:'12–15',rest:60,target:'自重或5kg',note:'下背轻重量',main:true,rm1:null},
-{id:'d3e7',name:'站姿提踵',sets:3,reps:'12–15',rest:60,target:'20–25kg / 首周15–20kg',note:'小腿',main:true,rm1:null},
-{id:'d3e8',name:'转体卷腹/帕洛夫抗旋',sets:2,reps:'12–15',rest:60,target:'自重/轻',note:'腹斜肌/核心抗旋',main:true,rm1:null}
+{id:'d3e5',name:'屈膝仰卧起坐',sets:3,reps:'15–20',rest:60,target:'自重',note:'腹',main:true,rm1:null},
+{id:'d3e6',name:'山羊挺身',sets:2,reps:'12–15',rest:60,target:'自重或5kg',note:'下背',main:true,rm1:null},
+{id:'d3e7',name:'站姿提踵',sets:3,reps:'12–15',rest:60,target:'小腿',note:'',main:true,rm1:30},
+{id:'d3e8',name:'转体卷腹',sets:2,reps:'12–15',rest:60,target:'自重',note:'腹斜肌',main:true,rm1:null}
 ]},
 day4:{title:'Day4',sub:'二头弱项日',optional:true,ex:[
-{id:'d4a',name:'肩袖外旋（前置）',sets:2,reps:'15',rest:45,target:'2.5–5kg',note:'',main:false},
-{id:'d4b',name:'面拉（前置）',sets:2,reps:'15',rest:45,target:'8–10kg',note:'',main:false},
-{id:'d4c',name:'死虫（前置）',sets:2,reps:'10',rest:45,target:'自重',note:'核心稳定',main:false},
-{id:'d4e1',name:'锤式弯举',sets:3,reps:'10–12',rest:75,target:'每手8–10kg / 首周7.5–8kg',note:'',main:true,rm1:12},
-{id:'d4e2',name:'集中弯举/牧师椅弯举',sets:3,reps:'12–15',rest:60,target:'5–7.5kg',note:'',main:true,rm1:8},
-{id:'d4e3',name:'反向飞鸟/面拉',sets:3,reps:'15',rest:60,target:'8–12kg',note:'',main:true,rm1:null},
-{id:'d4e4',name:'悬垂举腿或卷腹',sets:3,reps:'12–20',rest:60,target:'自重',note:'',main:true,rm1:null},
-{id:'d4e5',name:'腕弯举',sets:2,reps:'15',rest:60,target:'5–7.5kg',note:'前臂',main:true,rm1:null},
-{id:'d4e6',name:'站姿提踵',sets:2,reps:'15',rest:60,target:'15–20kg',note:'',main:true,rm1:null},
-{id:'d4e7',name:'低强度有氧',sets:1,reps:'20–30min',rest:0,target:'快走/椭圆/单车',note:'',main:false}
+{id:'d4a',name:'交替摸肩（前置）',sets:2,reps:'20（每侧10）',rest:45,target:'自重',note:'核心稳定',main:false},
+{id:'d4e1',name:'锤式弯举',sets:3,reps:'10–12',rest:75,target:'不甩身',note:'二头',main:true,rm1:15},
+{id:'d4e2',name:'哑铃弯举',sets:3,reps:'10–12',rest:75,target:'不甩身',note:'二头',main:true,rm1:12},
+{id:'d4e3',name:'俯身哑铃侧平举',sets:3,reps:'15',rest:60,target:'轻 2.5–5kg/手',note:'肩后束',main:true,rm1:5},
+{id:'d4e4',name:'悬垂举腿',sets:3,reps:'12–20',rest:60,target:'自重',note:'下腹',main:true,rm1:null},
+{id:'d4e5',name:'站姿提踵',sets:2,reps:'15',rest:60,target:'小腿',note:'',main:true,rm1:30},
+{id:'d4e6',name:'低强度有氧',sets:1,reps:'20–30min',rest:0,target:'快走/椭圆/单车',note:'',main:false}
 ]},
-day5:{title:'Day5',sub:'轻量补量 · 肩中后束/小腿/前臂/核心 + 有氧',optional:true,ex:[
-{id:'d5a',name:'肩袖外旋（前置）',sets:2,reps:'15',rest:45,target:'2.5–5kg',note:'',main:false},
-{id:'d5b',name:'弹力带面拉（前置）',sets:2,reps:'15',rest:45,target:'轻',note:'',main:false},
-{id:'d5e1',name:'侧平举',sets:3,reps:'15',rest:60,target:'2.5–5kg',note:'肩中束',main:true,rm1:null},
-{id:'d5e2',name:'俯身侧平举/反向飞鸟',sets:3,reps:'15',rest:60,target:'2.5–5kg',note:'肩后束',main:true,rm1:null},
-{id:'d5e3',name:'站姿提踵',sets:3,reps:'15',rest:60,target:'15–20kg',note:'小腿',main:true,rm1:null},
-{id:'d5e4',name:'腕弯举',sets:2,reps:'15',rest:60,target:'5–7.5kg',note:'前臂',main:true,rm1:null},
-{id:'d5e5',name:'帕洛夫抗旋/死虫',sets:2,reps:'12–15',rest:60,target:'自重',note:'核心抗旋',main:true,rm1:null},
+day5:{title:'Day5',sub:'轻量补量 · 肩/小腿/腹 + 有氧',optional:true,ex:[
+{id:'d5e1',name:'侧平举',sets:3,reps:'15',rest:60,target:'轻 2.5–5kg',note:'肩中束',main:true,rm1:5},
+{id:'d5e2',name:'前平举',sets:3,reps:'15',rest:60,target:'轻 2.5–5kg',note:'肩前束',main:true,rm1:5},
+{id:'d5e3',name:'俯身哑铃侧平举',sets:3,reps:'15',rest:60,target:'轻 2.5–5kg/手',note:'肩后束',main:true,rm1:5},
+{id:'d5e4',name:'站姿提踵',sets:3,reps:'15',rest:60,target:'小腿',note:'',main:true,rm1:30},
+{id:'d5e5',name:'转体卷腹',sets:2,reps:'15',rest:60,target:'自重',note:'腹斜肌',main:true,rm1:null},
 {id:'d5e6',name:'低强度有氧',sets:1,reps:'20–30min',rest:0,target:'快走/椭圆/单车',note:'',main:false}
 ]}};
 
@@ -241,17 +229,15 @@ function beep(){if(!audioCtx)return;const n=audioCtx.currentTime;[0,.22,.44].for
 function fmt(s){const m=Math.floor(s/60),x=s%60;return String(m).padStart(2,'0')+':'+String(x).padStart(2,'0')}
 function parseReps(r){const m=String(r).match(/(\d+)\s*[–-]\s*(\d+)/);if(m)return[+m[1],+m[2]];const n=String(r).match(/(\d+)/);if(n)return[+n[1],+n[1]];return[0,0]}
 function findEx(id){for(const d of Object.values(PLAN)){const e=d.ex.find(x=>x.id===id);if(e)return e}return null}
-function dayOfEx(id){for(const [dayId,d] of Object.entries(PLAN)){if(d.ex.find(x=>x.id===id))return dayId}return null}
 function loadActive(){try{return JSON.parse(localStorage.getItem('tt_active'))}catch(e){return null}}
 function saveActive(){if(!S.day)return;localStorage.setItem('tt_active',JSON.stringify({day:S.day,weights:S.weights,sets:S.sets,started:S.started}))}
 let saveT=null;function dsave(){clearTimeout(saveT);saveT=setTimeout(saveActive,300)}
 function lastW(id){try{return (JSON.parse(localStorage.getItem('tt_lastWeight'))||{})[id]||''}catch(e){return ''}}
 
-// ---------- 1RM / e1RM ----------
 function pctForReps(reps){
   if(reps<=1)return 1;
   if(reps>20)return 0.6;
-  return 1/(1+reps/30); // Epley
+  return 1/(1+reps/30);
 }
 function get1RM(exId){
   const ex=findEx(exId);
@@ -479,7 +465,7 @@ function renderAnalysis(){
     if(last2.length<2)continue;
     const [lo,hi]=parseReps(ex.reps);
     if(!hi)continue;
-    const lower=/腿|深蹲|硬拉|腿举|哈克|提踵/.test(ex.name);
+    const lower=/腿|深蹲|硬拉|腿举|提踵/.test(ex.name);
     const inc=lower?5:2.5;
     const allTop=last2.every(r=>r.sets.length&&r.sets.every(s=>s.reps>=hi&&s.rir>=2));
     const sameW=last2[0].weight===last2[1].weight;
@@ -503,7 +489,7 @@ function renderAnalysis(){
   }
   const weekAgo=Date.now()-7*24*3600*1000;
   let biSets=0;
-  h.forEach(s=>{if(new Date(s.date).getTime()<weekAgo)return;['d1e6','d1e7','d4e1','d4e2'].forEach(id=>{const r=s.exercises[id];if(r)biSets+=r.sets.length})});
+  h.forEach(s=>{if(new Date(s.date).getTime()<weekAgo)return;['d1e5','d1e6','d4e1','d4e2'].forEach(id=>{const r=s.exercises[id];if(r)biSets+=r.sets.length})});
   if(biSets>12)tips.push({type:'warn',ex:null,text:`近7天二头总组数 <b>${biSets} 组</b>，超过 12 组上限，建议下周少做一个二头动作或减组。`});
   let planSets=0,doneSets=0;
   h.forEach(s=>{if(new Date(s.date).getTime()<weekAgo)return;const d=PLAN[s.day];if(!d)return;planSets+=d.ex.filter(e=>e.main).reduce((a,e)=>a+e.sets,0);doneSets+=Object.values(s.exercises||{}).filter(r=>r.main).reduce((a,r)=>a+r.sets.length,0)});
